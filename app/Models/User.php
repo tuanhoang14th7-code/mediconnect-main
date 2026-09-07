@@ -68,4 +68,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(City::class, 'city_id');
     }
+
+    public function patientProfile()
+    {
+        return $this->hasOne(PatientProfile::class, 'user_id');
+    }
 }

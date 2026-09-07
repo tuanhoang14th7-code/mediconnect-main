@@ -1,59 +1,103 @@
 @extends('admin/AdminLayout')
 
 @section('admin-content')
-    {{-- Patients --}}
     <section class="container">
+
+        @include('admin.partials.flash')
+
         <div class="card shadow">
             <div class="card-header bg-dark d-flex justify-content-between align-items-center">
                 <h5 class="mb-0 text-white">Patients</h5>
-                <span class=" text-white">Total: {{ $patients->count() }}</span>
+                <a href="{{ url('Admin/Patients/Create') }}" class="btn btn-sm btn-light">
+                    <i class="bi bi-plus-lg"></i> New Patient
+                </a>
             </div>
+
+            <div class="card-body border-bottom">
+                <form method="GET" action="{{ url('Admin/Patients') }}" class="row g-2">
+                    <div class="col-md-4">
+                        <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control"
+                            placeholder="Search by name, email or phone...">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="city_id" class="form-select">
+                            <option value="">-- All cities --</option>
+                            @foreach ($cities as $city)
+                                <option value="{{ $city->id }}" @selected(request('city_id') == $city->id)>{{ $city->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <select name="account_status" class="form-select">
+                            <option value="">-- Account --</option>
+                            <option value="Active" @selected(request('account_status') === 'Active')>Active</option>
+                            <option value="Inactive" @selected(request('account_status') === 'Inactive')>Inactive</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn btn-primary"><i class="bi bi-search"></i> Filter</button>
+                        <a href="{{ url('Admin/Patients') }}" class="btn btn-outline-secondary">Reset</a>
+                    </div>
+                </form>
+            </div>
+
             <div class="card-body table-responsive p-0">
                 <table class="table table-bordered align-middle m-0">
                     <thead>
                         <tr>
-                            <th>#</th>
+                            <th style="width:1%">#</th>
                             <th>Name</th>
                             <th>Email</th>
                             <th>Number</th>
-                            <th class="text-center" style="width: 1%;">Delete</th>
-                            {{-- <th class="text-center" style="width: 1%;">Activity</th> --}}
+                            <th>City</th>
+                            <th class="text-center">Account</th>
+                            <th class="text-center text-nowrap" style="width:1%">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($patients as $index => $p)
+                        @forelse ($patients as $index => $p)
                             <tr>
-                                <th>{{ $index + 1 }}</th>
-                                <td>{{ $p['name'] }}</td>
-                                <td>{{ $p['email'] }}</td>
-                                <td>{{ $p['number'] }}</td>
-
-                                <td class="text-center text-nowrap">
-                                    <a href="{{ url('Admin/Patient/DeleteThis', $p['id']) }}"
-                                        onclick="return confirm('Are you sure? You want to delete {{ $p['name'] }} account?')">
-                                        <i class="bi bi-trash"
-                                            style="color:#6c757d; display:contents; position:absolute; font-size:18px; font-weight:bold; cursor:pointer; transition:0.2s;"
-                                            onmouseover="this.style.color='red'; this.style.fontSize='22px'"
-                                            onmouseout="this.style.color='#6c757d'; this.style.fontSize='18px'">
-                                        </i>
-                                    </a>
+                                <th>{{ $patients->firstItem() + $index }}</th>
+                                <td>{{ $p->name }}</td>
+                                <td>{{ $p->email }}</td>
+                                <td>{{ $p->number }}</td>
+                                <td>{{ $cityNames[$p->city_id] ?? '—' }}</td>
+                                <td class="text-center">
+                                    <span class="badge {{ $p->account_status === 'Active' ? 'bg-success' : 'bg-secondary' }}">
+                                        {{ $p->account_status }}
+                                    </span>
                                 </td>
-
-                                {{-- <td class="text-center text-nowrap">
-                                    <a href="#">
-                                        <i class="bi bi-activity"
-                                            style="color:#6c757d; display:contents; position:absolute; font-size:18px; font-weight:bold; cursor:pointer; transition:0.2s;"
-                                            onmouseover="this.style.color='green'; this.style.fontSize='22px'"
-                                            onmouseout="this.style.color='#6c757d'; this.style.fontSize='18px'">
-                                        </i>
+                                <td class="text-center text-nowrap">
+                                    <a href="{{ url('Admin/Patients/Show', $p->id) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-person-lines-fill"></i> View
                                     </a>
-                                </td> --}}
+                                    <a href="{{ url('Admin/Patients/Edit', $p->id) }}"
+                                        class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <form method="POST"
+                                        action="{{ url('Admin/User/ToggleAccountStatus', $p->id) }}" class="d-inline"
+                                        onsubmit="return confirm('{{ $p->account_status === 'Active' ? 'Deactivate' : 'Reactivate' }} the account of {{ $p->name }}?')">
+                                        @csrf
+                                        <button
+                                            class="btn btn-sm {{ $p->account_status === 'Active' ? 'btn-outline-danger' : 'btn-outline-success' }}">
+                                            <i class="bi {{ $p->account_status === 'Active' ? 'bi-lock' : 'bi-unlock' }}"></i>
+                                            {{ $p->account_status === 'Active' ? 'Deactivate' : 'Reactivate' }}
+                                        </button>
+                                    </form>
+                                </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center text-muted py-4">No patients found.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="card-footer d-flex justify-content-between">
+
+            <div class="card-footer">
                 {{ $patients->links() }}
             </div>
         </div>

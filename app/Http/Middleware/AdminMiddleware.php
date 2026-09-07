@@ -16,11 +16,23 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(Auth::user() && Auth::user()->user_type == "Admin"){
-            return $next($request);
-        } else {
+        $user = Auth::user();
+
+        // Not signed in, or not an admin
+        if (!$user || $user->user_type !== 'Admin') {
             Auth::logout();
             return redirect('login')->with('msg', 'Admin login required');
         }
+
+        // Account has been deactivated by another admin
+        if ($user->account_status !== 'Active') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('login')->with('msg', 'Your account has been deactivated. Please contact an administrator.');
+        }
+
+        return $next($request);
     }
 }

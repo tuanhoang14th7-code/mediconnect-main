@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\AdminController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Controller;
@@ -15,6 +14,15 @@ use App\Http\Controllers\AppointmentManagementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\MedicalContentController;
 use App\Http\Controllers\ContactController;
+
+// ------ Admin controllers (all live in App\Http\Controllers\Admin) ------
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\PatientController as AdminPatientController;
+use App\Http\Controllers\Admin\CityController;
+use App\Http\Controllers\Admin\FacilityController;
+use App\Http\Controllers\Admin\SpecializationController;
+use App\Http\Controllers\Admin\FacilitySpecializationController;
+use App\Http\Controllers\Admin\DoctorAssignmentController;
 
 
 // ================ Patient Register Router's ================
@@ -47,18 +55,20 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
 
 Route::middleware(['isAdmin'])->group(function () {
     // ================ Admin Router's ================
-    // ------ Admin Patients Control Router's ------
-    Route::get('Admin/Patients', [AdminController::class, 'patientList']);
-    Route::get('Admin/Patient/DeleteThis/{id}', [AdminController::class, 'deleteThisPatient']);
+    // ------ Admin Patients Control Router's (medical profile + account) ------
+    Route::get('Admin/Patients', [AdminPatientController::class, 'index']);
+    Route::get('Admin/Patients/Create', [AdminPatientController::class, 'create']);
+    Route::post('Admin/Patients/Store', [AdminPatientController::class, 'store']);
+    Route::get('Admin/Patients/Show/{id}', [AdminPatientController::class, 'show']);
+    Route::get('Admin/Patients/Edit/{id}', [AdminPatientController::class, 'edit']);
+    Route::post('Admin/Patients/Update/{id}', [AdminPatientController::class, 'update']);
+    Route::post('Admin/User/ToggleAccountStatus/{id}', [AdminController::class, 'toggleAccountStatus']);
 
     // ------ Admin Doctor Control Router's ------
-    Route::get('Admin/DoctorRegister', function () {
-        return view('admin.AdminDoctorRegister');
-    });
+    Route::get('Admin/DoctorRegister', [AdminController::class, 'showDoctorRegisterForm']);
     Route::post('Admin/RegisterThisDoctorNow', [AdminController::class, 'registerDoctor']);
     Route::get('Admin/Doctors', [AdminController::class, 'doctorsList']);
     Route::get('Admin/DoctorProfile/{id}', [AdminController::class, 'getThisDoctorProfile']);
-    Route::get('Admin/Doctor/DeleteThis/{id}', [AdminController::class, 'deleteThisDoctor']);
     Route::get('Admin/AdminDoctorDetailsForm/{id}', [AdminController::class, 'getAddDoctorDetailsFormData']);
     Route::post('Admin/AddThisDoctorDetailsNow', [AdminController::class, 'saveDoctorDetails']);
     Route::get('Admin/Doctor/EditThisProfile/{id}', [AdminController::class, 'getAdminEditDoctorDetailsFormData']);
@@ -66,9 +76,49 @@ Route::middleware(['isAdmin'])->group(function () {
     Route::post('Admin/Doctor/updateStatus', [AdminController::class, 'updateDoctorStatus']);
     Route::get('Admin/Appointments', [AdminController::class, 'getAppointmentPage']);
 
-
     // ------ Admin Appointment Control Router's ------
     Route::post('Admin/Appointment/UpdateStatus', [AdminController::class, 'updateAppointmentStatus']);
+
+    // ------ Admin master data routes (City / Facility / Specialization) ------
+    Route::get('Admin/Cities', [CityController::class, 'index']);
+    Route::get('Admin/Cities/Create', [CityController::class, 'create']);
+    Route::post('Admin/Cities/Store', [CityController::class, 'store']);
+    Route::get('Admin/Cities/Edit/{id}', [CityController::class, 'edit']);
+    Route::post('Admin/Cities/Update/{id}', [CityController::class, 'update']);
+    Route::post('Admin/Cities/Delete/{id}', [CityController::class, 'destroy']);
+    Route::post('Admin/Cities/ToggleStatus/{id}', [CityController::class, 'toggleStatus']);
+
+    Route::get('Admin/Facilities', [FacilityController::class, 'index']);
+    Route::get('Admin/Facilities/Create', [FacilityController::class, 'create']);
+    Route::post('Admin/Facilities/Store', [FacilityController::class, 'store']);
+    Route::get('Admin/Facilities/Edit/{id}', [FacilityController::class, 'edit']);
+    Route::post('Admin/Facilities/Update/{id}', [FacilityController::class, 'update']);
+    Route::post('Admin/Facilities/Delete/{id}', [FacilityController::class, 'destroy']);
+    Route::post('Admin/Facilities/ToggleStatus/{id}', [FacilityController::class, 'toggleStatus']);
+
+    Route::get('Admin/Specializations', [SpecializationController::class, 'index']);
+    Route::get('Admin/Specializations/Create', [SpecializationController::class, 'create']);
+    Route::post('Admin/Specializations/Store', [SpecializationController::class, 'store']);
+    Route::get('Admin/Specializations/Edit/{id}', [SpecializationController::class, 'edit']);
+    Route::post('Admin/Specializations/Update/{id}', [SpecializationController::class, 'update']);
+    Route::post('Admin/Specializations/Delete/{id}', [SpecializationController::class, 'destroy']);
+    Route::post('Admin/Specializations/ToggleStatus/{id}', [SpecializationController::class, 'toggleStatus']);
+
+    Route::get('Admin/FacilitySpecializations', [FacilitySpecializationController::class, 'index']);
+    Route::get('Admin/FacilitySpecializations/Create', [FacilitySpecializationController::class, 'create']);
+    Route::post('Admin/FacilitySpecializations/Store', [FacilitySpecializationController::class, 'store']);
+    Route::get('Admin/FacilitySpecializations/Edit/{id}', [FacilitySpecializationController::class, 'edit']);
+    Route::post('Admin/FacilitySpecializations/Update/{id}', [FacilitySpecializationController::class, 'update']);
+    Route::post('Admin/FacilitySpecializations/Delete/{id}', [FacilitySpecializationController::class, 'destroy']);
+    Route::post('Admin/FacilitySpecializations/ToggleStatus/{id}', [FacilitySpecializationController::class, 'toggleStatus']);
+
+    Route::get('Admin/DoctorAssignments', [DoctorAssignmentController::class, 'index']);
+    Route::get('Admin/DoctorAssignments/Create', [DoctorAssignmentController::class, 'create']);
+    Route::post('Admin/DoctorAssignments/Store', [DoctorAssignmentController::class, 'store']);
+    Route::get('Admin/DoctorAssignments/Edit/{id}', [DoctorAssignmentController::class, 'edit']);
+    Route::post('Admin/DoctorAssignments/Update/{id}', [DoctorAssignmentController::class, 'update']);
+    Route::post('Admin/DoctorAssignments/Delete/{id}', [DoctorAssignmentController::class, 'destroy']);
+    Route::post('Admin/DoctorAssignments/ToggleStatus/{id}', [DoctorAssignmentController::class, 'toggleStatus']);
 });
 
 Route::middleware(['isDoctor'])->group(function () {

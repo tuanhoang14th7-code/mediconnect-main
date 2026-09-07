@@ -42,6 +42,115 @@
     <link rel="stylesheet" href="{{ asset('assets/css/nice-select.css') }}">
     <!--<< Main.css >>-->
     <link rel="stylesheet" href="{{ asset('assets/css/main.css') }}">
+
+    {{--
+        Admin panel overrides.
+        The MediZen template styles forms and tables for the public site, and
+        nice-select.js replaces native dropdowns. Both make admin CRUD screens
+        hard to read, so everything inside .admin-page is reset to a plain,
+        dense back-office look.
+    --}}
+    <style>
+        .admin-page {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+            color: #2b3445;
+            font-size: 14px;
+        }
+
+        .admin-page h1, .admin-page h2, .admin-page h3,
+        .admin-page h4, .admin-page h5, .admin-page h6 {
+            font-family: inherit;
+            color: inherit;
+        }
+
+        /* Keep native selects; neutralise the template's custom dropdown */
+        .admin-page .nice-select { display: none !important; }
+        .admin-page select { display: block !important; }
+
+        .admin-page .card {
+            border: 1px solid #e4e9f0;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(16, 24, 40, .06);
+            background: #fff;
+        }
+
+        .admin-page .card-header {
+            background: #1f2d4a !important;
+            border-radius: 10px 10px 0 0;
+            padding: .9rem 1.1rem;
+        }
+
+        .admin-page .card-header h5 { font-size: 16px; font-weight: 600; margin: 0; }
+
+        .admin-page .table { margin: 0; font-size: 14px; }
+
+        .admin-page .table thead th {
+            background: #f5f7fb;
+            color: #5c6b85;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            white-space: nowrap;
+            border-bottom: 1px solid #e4e9f0;
+        }
+
+        .admin-page .table td,
+        .admin-page .table th { vertical-align: middle; padding: .7rem .85rem; }
+
+        .admin-page .table tbody tr:hover { background: #f9fbfd; }
+
+        .admin-page .form-control,
+        .admin-page .form-select {
+            height: 42px;
+            font-size: 14px;
+            border-radius: 8px;
+            border: 1px solid #d9e0ea;
+            padding: .4rem .75rem;
+            background-color: #fff;
+            color: #2b3445;
+        }
+
+        .admin-page textarea.form-control { height: auto; }
+
+        .admin-page .form-control:focus,
+        .admin-page .form-select:focus {
+            border-color: #4c7cf3;
+            box-shadow: 0 0 0 3px rgba(76, 124, 243, .15);
+        }
+
+        .admin-page .form-label { font-size: 13px; font-weight: 600; color: #48566e; margin-bottom: .35rem; }
+
+        .admin-page .btn {
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            padding: .45rem .9rem;
+            line-height: 1.4;
+        }
+
+        .admin-page .btn-sm { font-size: 13px; padding: .35rem .7rem; }
+
+        .admin-page .btn i { margin-right: .25rem; }
+
+        .admin-page .status-pill {
+            min-width: 92px;
+            font-weight: 600;
+            letter-spacing: .2px;
+        }
+
+        .admin-page .helper-note {
+            font-size: 13px;
+            color: #6b7a93;
+            margin: 0 0 .9rem;
+        }
+
+        .admin-page .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: .25rem;
+        }
+    </style>
 </head>
 
 <body class="body-bg">
@@ -137,6 +246,38 @@
                             <i class="bi bi-person-plus"></i> New Doctor Register
                         </a>
                     </li>
+                    {{-- ===== Master data the booking flow depends on ===== --}}
+                    <li class="nav-item mt-3 mb-1">
+                        <span class="text-uppercase small fw-bold px-3" style="color:#8fa3bf; letter-spacing:1px;">
+                            Master Data
+                        </span>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('Admin/Cities') }}" class="nav-link text-white">
+                            <i class="bi bi-geo-alt"></i> Cities
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('Admin/Facilities') }}" class="nav-link text-white">
+                            <i class="bi bi-hospital"></i> Facilities
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('Admin/Specializations') }}" class="nav-link text-white">
+                            <i class="bi bi-clipboard2-pulse"></i> Specializations
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('Admin/FacilitySpecializations') }}" class="nav-link text-white">
+                            <i class="bi bi-diagram-3"></i> Facility Specializations
+                        </a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a href="{{ url('Admin/DoctorAssignments') }}" class="nav-link text-white">
+                            <i class="bi bi-person-vcard"></i> Doctor Assignments
+                        </a>
+                    </li>
+
                     <li class="nav-item mt-4">
                         <a href="{{ url('logout') }}" class="nav-link text-danger">
                             <i class="bi bi-box-arrow-right"></i> Logout
@@ -167,7 +308,9 @@
             <div class="container-fluid p-4">
 
                 {{-- @if (auth()->user() && auth()->user()->user_type == 'Admin') --}}
-                @yield('admin-content')
+                <div class="admin-page">
+                    @yield('admin-content')
+                </div>
                 {{-- @else
                     <div class="text-center py-5">
                         <h3 style="color:red;">
