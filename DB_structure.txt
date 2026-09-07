@@ -1,0 +1,69 @@
+
+CREATE TABLE `users` (
+	`id` bigint(20) UNSIGNED NOT NULL,
+   `name` varchar(255) NOT NULL,
+   `email` varchar(255) NOT NULL,
+   `number` int(11) NOT NULL,
+   `password` varchar(255) NOT NULL,
+   `user_type` enum('Patient','Doctor','Admin') NOT NULL DEFAULT 'Patient',
+   `remember_token` varchar(100) DEFAULT NULL,
+   `created_at` timestamp NULL DEFAULT NULL,
+   `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+table => doctor
+	Expertise, Experience, Education, Profession, availability time with days
+   relation => users table id -> doctor_id
+
+INSERT INTO doctors 
+(user_id, expertise, experience, education, profession, available_days, available_time, image)
+VALUES
+(3, 'Cardiologist', 10, 'MBBS, MD Cardiology', 'Senior Doctor', 'Mon-Fri', '10:00 AM - 2:00 PM', 'doctor1.jpg'),
+
+(4, 'Dentist', 5, 'BDS', 'Junior Doctor', 'Mon-Sat', '9:00 AM - 1:00 PM', 'doctor2.jpg'),
+
+(5, 'Neurologist', 8, 'MBBS, MD Neurology', 'Consultant', 'Tue-Sun', '11:00 AM - 4:00 PM', 'doctor3.jpg'),
+
+(6, 'Orthopedic', 12, 'MBBS, MS Orthopedics', 'Senior Specialist', 'Mon-Fri', '2:00 PM - 6:00 PM', 'doctor4.jpg'),
+
+(7, 'Pediatrician', 6, 'MBBS, MD Pediatrics', 'Child Specialist', 'Mon-Sat', '10:00 AM - 3:00 PM', 'doctor5.jpg'),
+
+(8, 'Dermatologist', 7, 'MBBS, MD Dermatology', 'Skin Specialist', 'Wed-Mon', '12:00 PM - 5:00 PM', 'doctor6.jpg');
+
+INSERT INTO users (name, email, password, number, user_type)
+VALUES
+('Dr. Meet Patel', 'meet.patel@gmail.com', '12345678', '9876543210', 'Doctor'),
+
+('Dr. Krunal Shah', 'krunal.shah@gmail.com', '12345678', '9876543211', 'Doctor'),
+
+('Dr. Dhruv Mehta', 'dhruv.mehta@gmail.com', '12345678', '9876543212', 'Doctor'),
+
+('Dr. Yash Joshi', 'yash.joshi@gmail.com', '12345678', '9876543213', 'Doctor'),
+
+('Dr. Harsh Trivedi', 'harsh.trivedi@gmail.com', '12345678', '9876543214', 'Doctor'),
+
+('Dr. Nirav Desai', 'nirav.desai@gmail.com', '12345678', '9876543215', 'Doctor');
+
+
+
+
+
+table => patient
+	name, email, number, (ex. father book for it's son so name, email, number is different from users login table)
+	message, time
+	relation => users table id -> patient_id
+
+
+admin dashboard:- 
+two part ui
+1 access panel = patients, doctors, appointments, logout
+1 showing panel
+
+
+doctor dashboard:- 
+navbar = profile (all information, Time & schedule), appointments, login & register & logout 
+
+
+patient dashboard:-
+navbar = category, contact, login & register & logout 
