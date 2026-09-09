@@ -15,6 +15,6 @@ class City extends Model
 
     public function facilities()
     {
-        return $this->hasMany(Facility::class);
+         return $this->hasMany(Facility::class);
     }
 }
